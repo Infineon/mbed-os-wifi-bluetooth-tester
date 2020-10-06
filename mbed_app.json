@@ -1,0 +1,48 @@
+{
+   "macros": ["MBEDOS"],
+   "config": {
+        "wifi-ssid": {
+            "help": "WiFi SSID",
+            "value": "\"SSID\""
+        },
+        "wifi-password": {
+            "help": "WiFi Password",
+            "value": "\"PASSWORD\""
+        },
+        "softap-wifi-ssid": {
+            "help": "Soft AP WiFi SSID",
+            "value": "\"SSID\""
+        },
+        "softap-wifi-password": {
+            "help": "Soft AP WiFi Password",
+            "value": "\"PASSWORD\""
+        },
+        "softap-wifi-security": {
+            "help": "Soft AP WiFi security",
+            "value": "NSAPI_SECURITY_WPA_WPA2"
+        },
+        "softap-wifi-channel": {
+            "help": "Soft AP WiFi Channel",
+            "value": 11
+        } 
+    },
+	"target_overrides": {
+       "*": {
+           "target.components_add": ["MBED"],
+           "platform.stdio-convert-newlines": true,
+           "platform.stdio-convert-tty-newlines": false,
+           "target.printf_lib": "std",
+           "target.network-default-interface-type": "WIFI",
+           "nsapi.default-wifi-security": "WPA_WPA2",
+           "nsapi.default-wifi-ssid": "\"SSID\"",
+           "nsapi.default-wifi-password": "\"PASSWORD\"",
+           "lwip.tcpip-thread-priority": 40,
+           "lwip.memp-num-tcp-seg": 48,
+           "lwip.memp-num-tcpip-msg-inpkt": 48,
+           "lwip.mbox-size": 16,
+           "lwip.tcp-snd-buf": "(10 * TCP_MSS)",
+           "lwip.tcp-wnd": "(TCP_MSS * 10)",     
+           "platform.stdio-baud-rate": 115200
+       }
+   }
+}

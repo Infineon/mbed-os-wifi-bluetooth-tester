@@ -1,5 +1,4 @@
 {
-   "macros": ["MBEDOS"],
    "config": {
         "wifi-ssid": {
             "help": "WiFi SSID",
@@ -28,7 +27,7 @@
     },
 	"target_overrides": {
        "*": {
-           "target.components_add": ["MBED"],
+           "target.components_add": ["MBED", "CORDIO"],
            "platform.stdio-convert-newlines": true,
            "platform.stdio-convert-tty-newlines": false,
            "target.printf_lib": "std",

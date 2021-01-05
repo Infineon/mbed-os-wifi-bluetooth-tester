@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Cypress Semiconductor Corporation or a subsidiary of
+ * Copyright 2021, Cypress Semiconductor Corporation or a subsidiary of
  * Cypress Semiconductor Corporation. All Rights Reserved.
  *
  * This software, including source code, documentation and related
@@ -34,7 +34,9 @@
 #include "command_console.h"
 #include "iperf_utility.h"
 #include "bt_utility.h"
+#include "wifi_utility.h"
 #include "mbed.h"
+#include "cyabs_rtos.h"
 
 /******************************************************
  *                      Macros
@@ -43,12 +45,14 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-#define CONSOLE_COMMAND_MAX_PARAMS     (32)
-#define CONSOLE_COMMAND_MAX_LENGTH     (85)
-#define CONSOLE_COMMAND_HISTORY_LENGTH (10)
+#define CONSOLE_COMMAND_MAX_PARAMS       (32)
+#define CONSOLE_COMMAND_MAX_LENGTH       (85)
+#define CONSOLE_COMMAND_HISTORY_LENGTH   (10)
+#define CMD_CONSOLE_MAX_WIFI_RETRY_COUNT (3)
 
 #define STA_INTERFACE
 //#define AP_INTERFACE
+
 #ifdef AP_INTERFACE
 #include "WhdSoftAPInterface.h"
 #define SOFTAP_IP_ADDRESS "192.165.100.2"
@@ -114,21 +118,26 @@ int main(void)
     console_cfg.delimiter_string   = console_delimiter_string;
     console_cfg.params_num         = CONSOLE_COMMAND_MAX_PARAMS;
     console_cfg.delimiter_string   = " ";
+    console_cfg.thread_priority    = CY_RTOS_PRIORITY_NORMAL;
 
     /* Initialize command console library */
     result = cy_command_console_init(&console_cfg);
-
+    if(result != CY_RSLT_SUCCESS)
+    {
+        printf("Error initializing command console library. Res:%lu\n", result);
+        return -1;
+    }
 #ifdef STA_INTERFACE
     printf("Connecting to the network using Wifi...\r\n");
     networkInterface  = NetworkInterface::get_default_instance();
     if (!networkInterface)
     {
         printf("ERROR: No NetworkInterface found.\n");
-        CY_RSLT_TYPE_ERROR;
+        return -1;
     }
     printf("\nConnecting to %s...\n", MBED_CONF_APP_WIFI_SSID);
     nsapi_error_t net_status = -1;
-    for(int tries = 0; tries < 3; tries++)
+    for(int tries = 0; tries < CMD_CONSOLE_MAX_WIFI_RETRY_COUNT; tries++)
     {
         net_status = networkInterface->connect();
         if (net_status == NSAPI_ERROR_OK)
@@ -144,7 +153,7 @@ int main(void)
     if (net_status != NSAPI_ERROR_OK)
     {
         printf("ERROR: Connecting to the network failed (%d)!\r\n", net_status);
-        return CY_RSLT_TYPE_ERROR;
+        return -1;
     }
 
     networkInterface->get_ip_address(&sockaddr);
@@ -154,6 +163,14 @@ int main(void)
     printf("Netmask: %s\n", sockaddr.get_ip_address());
     networkInterface->get_gateway(&sockaddr);
     printf("Gateway: %s\n", sockaddr.get_ip_address());
+
+    /* Wi-Fi utility library init */
+    result = wifi_utility_init();
+    if(result != CY_RSLT_SUCCESS)
+    {
+        printf("wifi_utility_init failed with error [%lu]\n", result);
+        return -1;
+    }
 
     /* Initialize iperf library */
     iperf_utility_init(networkInterface);

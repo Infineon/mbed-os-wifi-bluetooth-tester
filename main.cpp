@@ -1,10 +1,10 @@
 /*
- * Copyright 2021, Cypress Semiconductor Corporation or a subsidiary of
- * Cypress Semiconductor Corporation. All Rights Reserved.
+ * Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+ * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
- * materials ("Software"), is owned by Cypress Semiconductor Corporation
- * or one of its subsidiaries ("Cypress") and is protected by and subject to
+ * materials ("Software") is owned by Cypress Semiconductor Corporation
+ * or one of its affiliates ("Cypress") and is protected by and subject to
  * worldwide patent protection (United States and foreign),
  * United States copyright laws and international treaty provisions.
  * Therefore, you may use this Software only as provided in the license
@@ -13,7 +13,7 @@
  * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
  * non-transferable license to copy, modify, and compile the Software
  * source code solely for use in connection with Cypress's
- * integrated circuit products. Any reproduction, modification, translation,
+ * integrated circuit products.  Any reproduction, modification, translation,
  * compilation, or representation of this Software except as specified
  * above is prohibited without the express written permission of Cypress.
  *
@@ -84,7 +84,6 @@ static char command_history_buffer[CONSOLE_COMMAND_MAX_LENGTH * CONSOLE_COMMAND_
 /******************************************************
  *               Variable Definitions
  ******************************************************/
-WiFiInterface *wifi;
 NetworkInterface *networkInterface;
 /******************************************************
  *               Function Definitions
@@ -142,6 +141,13 @@ int main(void)
         net_status = networkInterface->connect();
         if (net_status == NSAPI_ERROR_OK)
         {
+            networkInterface->get_ip_address(&sockaddr);
+            printf("MAC: %s\n", networkInterface->get_mac_address());
+            printf("IP: %s\n", sockaddr.get_ip_address());
+            networkInterface->get_netmask(&sockaddr);
+            printf("Netmask: %s\n", sockaddr.get_ip_address());
+            networkInterface->get_gateway(&sockaddr);
+            printf("Gateway: %s\n", sockaddr.get_ip_address());
             break;
         }
         else
@@ -153,16 +159,7 @@ int main(void)
     if (net_status != NSAPI_ERROR_OK)
     {
         printf("ERROR: Connecting to the network failed (%d)!\r\n", net_status);
-        return -1;
     }
-
-    networkInterface->get_ip_address(&sockaddr);
-    printf("MAC: %s\n", networkInterface->get_mac_address());
-    printf("IP: %s\n", sockaddr.get_ip_address());
-    networkInterface->get_netmask(&sockaddr);
-    printf("Netmask: %s\n", sockaddr.get_ip_address());
-    networkInterface->get_gateway(&sockaddr);
-    printf("Gateway: %s\n", sockaddr.get_ip_address());
 
     /* Wi-Fi utility library init */
     result = wifi_utility_init();

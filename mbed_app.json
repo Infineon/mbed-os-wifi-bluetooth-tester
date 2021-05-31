@@ -25,6 +25,8 @@
             "value": 11
         } 
     },
+    "macros": ["LWIP_TCPIP_CORE_LOCKING=1",
+               "LWIP_TCPIP_CORE_LOCKING_INPUT=1"],
 	"target_overrides": {
        "*": {
            "target.components_add": ["MBED", "CORDIO"],
@@ -36,11 +38,12 @@
            "nsapi.default-wifi-ssid": "\"SSID\"",
            "nsapi.default-wifi-password": "\"PASSWORD\"",
            "lwip.tcpip-thread-priority": 40,
-           "lwip.memp-num-tcp-seg": 48,
+           "lwip.memp-num-tcp-seg": 127,
            "lwip.memp-num-tcpip-msg-inpkt": 48,
-           "lwip.mbox-size": 16,
-           "lwip.tcp-snd-buf": "(10 * TCP_MSS)",
-           "lwip.tcp-wnd": "(TCP_MSS * 10)",     
+           "lwip.mbox-size": 64,
+           "lwip.pbuf-pool-size" : 60,
+           "lwip.tcp-snd-buf": "(20 * TCP_MSS)",
+           "lwip.tcp-wnd": "(TCP_MSS * 20)",
            "platform.stdio-baud-rate": 115200
        }
    }
